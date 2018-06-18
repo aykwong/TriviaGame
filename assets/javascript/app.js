@@ -40,78 +40,112 @@ var stats = {
   incorrect: 0
 };
 
-var intervalId;
+var timer = {
+  intervalId: "",
+  time: 5,
+  timeReset: 0
+};
 
-var quizCount = 1;
+let quizCount = 1;
 
 $("button").on("click", function run() {
   //Hides the button and starts the game
   $("#preStart").css("display", "none");
   $("#postStart").css("display", "block");
 
-  // setInterval()
+function timeKeeper() {
+  if(timer.time > 0 && timer.reset === 0) {
+    timer.intervalId = setInterval(function() {
+      timer.time -=1;
+      $("#timeLeft").html(timer.time);
+    }, 1000) } else if(timer.time <= 0) {
+      
+    } else {
+      clearInterval(timer.intervalId);
+      timer.reset = 0;
+      timer.time = 5;
+      timeKeeper();
+    }
+  }
+
+  timer.intervalId = setInterval(function () {
+    timer.time -= 1;
+    $("#timeLeft").html(timer.time);
+    if (timer.time === 0) {
+      clearInterval(timer.intervalId);
+    } else if(timer.reset === 1) {
+      clearInterval(timer.intervalId);
+      timer.reset = 0;
+      timer.time = 5;
+      timer.intervalId;
+    }
+  }, 1000);
 
   //Runs through the array of questions and dynamically generates the question and choices
   let count = "Q" + quizCount;
-  if (count !== "Q6") {
-    console.log(count);
-    console.log(trivia[count].question);
-    $(".question").text(trivia[count].question);
 
-    let i = 0;
-    $.each(trivia[count].choice, function() {
-      let choice = $("<div>");
-      $(choice).addClass("mt-4 choice");
-      $(choice).text(trivia[count].choice[i]);
-      $(".answers").append(choice);
-      i++;
-    });
+  if (quizCount === 6) {
+    endResult();
+  }
 
-    //Evaluates the user's choice and listens for a button click to reset for next question
-    $(".answers").on("click", ".choice", function() {
-      let answer = $(this).text();
-      let result = $("<div>");
-      $(result).addClass("mb-4");
+  console.log(count);
+  console.log(trivia[count].question);
+  $(".question").text(trivia[count].question);
 
-      $(".question").html("<img src=" + trivia[count].picture + ' alt="Facebook" width="500px" />');
-      $(".answers").html("<button>Click to continue</button>");
-      if (answer === trivia[count].answer) {
-        $(result).text("You're right!");
-        stats.correct++;
-        $(".answers").prepend(result);
-      } else if(answer !== trivia[count].answer) {
-        $(result).text("You're wrong!");
-        stats.incorrect++;
-        $(".answers").prepend(result);
-      }
+  let i = 0;
+  $.each(trivia[count].choice, function () {
+    let choice = $("<div>");
+    $(choice).addClass("mt-4 choice");
+    $(choice).text(trivia[count].choice[i]);
+    $(".answers").append(choice);
+    i++;
+  });
 
-      $("button").on("click", function next() {
-        nextQuestion();
-      });
+  //Evaluates the user's choice and listens for a button click to reset for next question
+  $(".answers").on("click", ".choice", function () {
+    let result = $("<div>");
+    $(result).addClass("mb-4");
 
-      //Resets the quiz and increases quizCount by one for next question
-      function nextQuestion() {
-        quizCount++;
-        $(".question").empty();
-        $(".answers").empty();
-        run();
-      }
-    });
-  } else {
-    $(".question").append(
-      "<div>Questions answered correctly:" + stats.correct + "</div>"
-    );
-    $(".question").append(
-      "<div>Questions answered incorrectly:" + stats.incorrect + "</div>"
-    );
-    $(".answers").html("<button>Click to try again</button>");
-    $("button").on("click", function() {
-      quizCount = 1;
-      stats.correct = 0;
-      stats.incorrect = 0;
+    setTimeout(nextQuestion, 4000);
+    $(".question").html("<img src=" + trivia[count].picture + ' alt="' + trivia[count].answer + '" width="450px" />');
+    $(".answers").html("<button>Click to continue</button>");
+    if ($(this).text() === trivia[count].answer) {
+      $(result).html("You're right!");
+      stats.correct++;
+      $(".answers").prepend(result);
+    } else if ($(this).text() !== trivia[count].answer) {
+      $(result).html("You're wrong. The correct answer is: " + trivia[count].answer);
+      stats.incorrect++;
+      $(".answers").prepend(result);
+    }
+
+    //Resets the quiz and increases quizCount by one for next question
+    function nextQuestion() {
+      quizCount++;
+      timer.reset = 1;
       $(".question").empty();
+      $(".answers").remove(".choice");
       $(".answers").empty();
       run();
-    });
-  }
+    }
+  });
+
 });
+
+function endResult() {
+  $(".question").append(
+    "<div>Questions answered correctly:" + stats.correct + "</div>"
+  );
+  $(".question").append(
+    "<div>Questions answered incorrectly:" + stats.incorrect + "</div>"
+  );
+  $(".answers").html("<button>Click to try again</button>");
+  $("button").on("click", function () {
+    quizCount = 1;
+    stats.correct = 0;
+    stats.incorrect = 0;
+    $(".question").empty();
+    $(".answers").empty();
+    run();
+  });
+};

@@ -1,14 +1,28 @@
 body {
+    background-image: url(../images/dark_embroidery/dark_embroidery.png);
     width: 100%;
 }
 
 .container {
+    background-color: #eeeeee;
     margin-top: 7%;
     text-align: center;
+    height: 550px;
+}
+button {
+    margin-top: 20%;
 }
 
-h1 {
-    
+.choice {
+    width: 275px;
+    margin: auto;
+}
+
+.choice:hover {
+    background-color: lightskyblue;
+    border:2px solid royalblue;
+    color: royalblue;
+    font-weight: bold;
 }
 
 #preStart {

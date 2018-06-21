@@ -74,7 +74,7 @@ $("button").on("click", function run() {
           trivia[count].picture +
           ' alt="' +
           trivia[count].answer +
-          '" width="450px" />'
+          '" width="375px" />'
       );
       $(result).html(
         "Time's up! The correct answer is: " + trivia[count].answer
@@ -121,7 +121,7 @@ $("button").on("click", function run() {
         trivia[count].picture +
         ' alt="' +
         trivia[count].answer +
-        '" width="450px" />'
+        '" width="375px" />'
     );
     if ($(this).text() === trivia[count].answer) {
       $(result).html("Awesome! You're right!");

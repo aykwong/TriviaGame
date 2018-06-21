@@ -30,7 +30,7 @@ var trivia = {
   Q5: {
     question: "Apple (the company), was founded in 1976 by whom?",
     choice: ["Steve Jobs", "Steve Wozniak", "Ronald Wayne", "All of the Above"],
-    answer: "All of the above",
+    answer: "All of the Above",
     picture: "assets/images/answer5.png"
   }
 };
@@ -44,14 +44,28 @@ var timer = {
   intervalId: "",
   time: 5,
   timeReset: 0,
-  start: setInterval(function() {
-    $(this).time -= 1;
-    $("#timeLeft").html($(this).time);
-  }, 1000),
-  clear: function() {
-    clearInterval($(this).start);
-  }
-};
+  start: function() {
+    setInterval(function(){
+    timer.time -= 1;
+    $("#timeLeft").html(timer.time);
+    if (timer.time === 0) {
+      clearInterval(timer.intervalId);
+      let result = $("<div>");
+      $(result).addClass("mb-4");
+      
+      setTimeout(nextQuestion, 3000);
+      $(".question").html("<img src=" + trivia[count].picture + ' alt="' + trivia[count].answer + '" width="450px" />');
+      $(result).html("Time's up! The correct answer is: " + trivia[count].answer);
+      stats.incorrect++;
+      $(".answers").html(result);
+    } else if(timer.timeReset === 1) {
+      clearInterval(timer.intervalId);
+      timer.timeReset = 0;
+      timer.time = 5;
+    }
+  }, 1000);
+}
+}
 
 var quizCount = 1;
 
@@ -59,29 +73,39 @@ $("button").on("click", function run() {
   //Hides the button and starts the game
   $("#preStart").css("display", "none");
   $("#postStart").css("display", "block");
+  clearInterval(timer.intervalId);
+  
+timer.intervalId = setInterval(function() {
+  timer.time -= 1;
+  $("#timeLeft").html(timer.time);
+  if (timer.time === 0) {
+    clearInterval(timer.intervalId);
+    let result = $("<div>");
+    $(result).addClass("mb-4");
+    
+    setTimeout(nextQuestion, 3000);
+    $(".question").html("<img src=" + trivia[count].picture + ' alt="' + trivia[count].answer + '" width="450px" />');
+    $(result).html("Time's up! The correct answer is: " + trivia[count].answer);
+    stats.incorrect++;
+    $(".answers").html(result);
+  } else if(timer.timeReset === 1) {
+    clearInterval(timer.intervalId);
+    timer.timeReset = 0;
+    timer.time = 5;
+  }
+}, 1000);
 
-// function() {
-//   if(timer.time > 0) {
-//     timer.start;
-//   } else if (timer.reset === 1) {
-//       clearInterval(timer.intervalId);
-//       timer.reset = 0;
-//       timer.time = 5;
-//       timeKeeper();
-//     }
-//   }
+//Runs through the array of questions and dynamically generates the question and choices
+let count = "Q" + quizCount;
 
-  //Runs through the array of questions and dynamically generates the question and choices
-  let count = "Q" + quizCount;
-
-  if (quizCount === 6) {
+if (quizCount === 6) {
     endResult();
   }
-
+  
   console.log(count);
   console.log(trivia[count].question);
   $(".question").text(trivia[count].question);
-
+  
   let i = 0;
   $.each(trivia[count].choice, function () {
     let choice = $("<div>");
@@ -90,21 +114,20 @@ $("button").on("click", function run() {
     $(".answers").append(choice);
     i++;
   });
-
+  
   //Evaluates the user's choice and listens for a button click to reset for next question
-    $(".answers").on("click", ".choice", function answerPhase() {
-      let result = $("<div>");
-      $(result).addClass("mb-4");
+  $(".answers").on("click", ".choice", function answerPhase() {
+    let result = $("<div>");
+    $(result).addClass("mb-4");
     
-      setTimeout(nextQuestion, 2000);
-      console.log("inside click: " + count);
-      $(".question").html("<img src=" + trivia[count].picture + ' alt="' + trivia[count].answer + '" width="450px" />');
-      if ($(this).text() === trivia[count].answer) {
-        $(result).html("You're right!");
-        stats.correct++;
-        $(".answers").html(result);
+    setTimeout(nextQuestion, 3000);
+    $(".question").html("<img src=" + trivia[count].picture + ' alt="' + trivia[count].answer + '" width="450px" />');
+    if ($(this).text() === trivia[count].answer) {
+      $(result).html("Awesome! You're right!");
+      stats.correct++;
+      $(".answers").html(result);
       } else {
-        $(result).html("You're wrong. The correct answer is: " + trivia[count].answer);
+        $(result).html("Mistakes were made. The correct answer is: " + trivia[count].answer);
         stats.incorrect++;
         $(".answers").html(result);
       };
@@ -113,37 +136,26 @@ $("button").on("click", function run() {
     //Resets the quiz and increases quizCount by one for next question
     function nextQuestion() {
       quizCount++;
-      timer.reset = 1;
+      timer.timeReset = 1;
       $(".question").empty();
       $(".answers").off("click", ".choice");
       $(".answers").empty();
       run();
     }
 
-  // timer.intervalId = setInterval(function () {
-  //   timer.time -= 1;
-  //   $("#timeLeft").html(timer.time);
-  //   if (timer.time === 0) {
-  //     clearInterval(timer.intervalId);
-  //     answerPhase();
-  //   } else if(timer.reset === 1) {
-  //     clearInterval(timer.intervalId);
-  //     timer.reset = 0;
-  //     timer.time = 5;
-  //     timer.intervalId;
-  //   }
-  // }, 1000);
 
   function endResult() {
     $(".question").append(
-      "<div>Questions answered correctly:" + stats.correct + "</div>"
+      "<div>Questions answered correctly: " + stats.correct + "</div>"
     );
     $(".question").append(
-      "<div>Questions answered incorrectly:" + stats.incorrect + "</div>"
+      "<div>Questions answered incorrectly: " + stats.incorrect + "</div>"
     );
     $(".answers").html("<button>Click to try again</button>");
   
     $("button").on("click", function () {
+      clearInterval(timer.intervalId);
+      timer.intervalId;
       quizCount = 1;
       stats.correct = 0;
       stats.incorrect = 0;

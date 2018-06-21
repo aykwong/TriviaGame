@@ -65,6 +65,8 @@ $("button").on("click", function run() {
     $("#timeLeft").html(timer.time);
     if (timer.time === 0) {
       clearInterval(timer.intervalId);
+      timer.time = 16;
+      
       let result = $("<div>");
       $(result).addClass("mb-4");
 
@@ -80,7 +82,6 @@ $("button").on("click", function run() {
         "Time's up! The correct answer is: " + trivia[count].answer
       );
       stats.incorrect++;
-      timer.time = 16;
       $(".answers").html(result);
     }
   }
